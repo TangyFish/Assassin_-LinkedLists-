@@ -75,7 +75,7 @@ public class AssassinManager {
    		AssassinNode previous;
    		if(current.name.equals(n)) {
    			deadFirst = current;
-   			while(current2.next != null) {
+   			while(current2.next != first) {
    				current2 = current2.next;
    			}
    			current.killer = current2.name;
