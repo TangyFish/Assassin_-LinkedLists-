@@ -1,4 +1,3 @@
-package Assassin;
 import java.util.*;
 import java.awt.List;
 
@@ -6,7 +5,7 @@ public class AssassinManager {
     // YOUR CODE GOES HERE
 
 	AssassinNode first;
-	AssassinNode deadFirst;
+	AssassinNode deadFirst = null;
 
 	public AssassinManager(ArrayList<String> names) {
 		try {
@@ -36,17 +35,68 @@ public class AssassinManager {
 		return print;
 	}
 	
-	public void kill(String name) {
-		try {
-			
-			return;
+	public boolean killRingContains(String name) {
+		AssassinNode current = first;
+		while(current.next != first) {
+			if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
+			current = current.next;
 		}
-		catch(Exception e) {
-			throw new IllegalStateException();
-		}
-		throw new IllegalArgumentException();
+		return false;
 	}
 	
+	public String graveYard() {
+		String s = "";
+		if(deadFirst == null) return s;
+		AssassinNode current = deadFirst;
+		while(current.next != null) {
+			if(killRingContains(current.killer)) {
+				s += current.name + " was killed by " + current.killer + "\n";
+			}
+			current = current.next;
+		}
+		return s;
+		
+	}
+	
+	public boolean graveYardContains(String name) {
+		AssassinNode current = deadFirst;
+		while(current.next != null) {
+			if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
+			current = current.next;
+		}
+		if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
+		return false;
+	}
+	
+	
+	public void kill(String n) {
+		AssassinNode current = first;
+		AssassinNode current2 = first;
+   		AssassinNode previous;
+   		if(current.name.equals(n)) {
+   			deadFirst = current;
+   			while(current2.next != null) {
+   				current2 = current2.next;
+   			}
+   			current.killer = current2.name;
+   			first = current.next;
+   			return; // no need to reset current since it already returns once the person is killed
+   		}
+   		//in case the one who's killed isnt first
+   		while(current.next != first) {
+   			previous = current;
+   			current = current.next;
+   			if(current.name.equals(n)) {
+   				deadFirst = current;
+   				previous.next = current.next;
+   				current.next = null;
+   				return;
+   			}
+   		
+   		}
+   		
+   		return;
+	}
 	
 	public boolean isGameOver() {
 		if (first.next == null) 
@@ -54,12 +104,11 @@ public class AssassinManager {
 		return false;
 	}
 	
-	public String graveYard() {	
-		String print = "";
-		
-		return print;
+	public String winner() {
+		return first.name;
 	}
-	public static void main(String[] args) {
+	
+	public static void main(String[] args) throws Exception{
 		ArrayList<String> bob = new ArrayList<String>(Arrays.asList("Don Knuth","bob","tim","Big John"));
 		AssassinManager tim = new AssassinManager(bob);
 		System.out.println(tim.killRing());
