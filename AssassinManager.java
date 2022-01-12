@@ -36,17 +36,22 @@ public class AssassinManager {
 	}
 	
 	public boolean killRingContains(String name) {
-		AssassinNode current = first;
-		while(current.next != first) {
-			if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
-			current = current.next;
+		try {
+			AssassinNode current = first;
+			while(current.next != first) {
+				if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
+				current = current.next;
+			}
+			return false;
 		}
-		return false;
+		catch(Exception e) {
+			return false;
+		}
 	}
 	
-	public String graveYard() {
+	public String graveyard() {
 		String s = "";
-		if(deadFirst == null) return s;
+		if(deadFirst == null) return "Nobody's died yet";
 		AssassinNode current = deadFirst;
 		while(current.next != null) {
 			if(killRingContains(current.killer)) {
@@ -58,44 +63,65 @@ public class AssassinManager {
 		
 	}
 	
-	public boolean graveYardContains(String name) {
-		AssassinNode current = deadFirst;
-		while(current.next != null) {
+	public boolean graveyardContains(String name) {
+		try {
+			AssassinNode current = deadFirst;
+			while(current.next != null) {
+				if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
+				current = current.next;
+			}
 			if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
-			current = current.next;
+			return false;
 		}
-		if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
-		return false;
+		catch (Exception e) {
+			return false;
+		}
 	}
 	
 	
 	public void kill(String n) {
-		AssassinNode current = first;
-		AssassinNode current2 = first;
+		if(isGameOver()) throw new IllegalStateException();
+		if(!killRingContains(n)) throw new IllegalArgumentException();
+		AssassinNode current2;
+   		AssassinNode current = first;
    		AssassinNode previous;
-   		if(current.name.equals(n)) {
-   			deadFirst = current;
-   			while(current2.next != first) {
-   				current2 = current2.next;
-   			}
-   			current.killer = current2.name;
-   			first = current.next;
-   			return; // no need to reset current since it already returns once the person is killed
-   		}
-   		//in case the one who's killed isnt first
    		while(current.next != first) {
+	   			current = current.next;
+	   		}
+   		AssassinNode last = current.next;
+   		//if first one is to be killed
+   		if(current.name.toLowerCase().equals(n.toLowerCase())) {
+   			deadFirst = current;
+   			current2 = deadFirst;
+   			current.killer = last.name;
+   			first = current.next;
+   			return;
+   		}
+   		//this skips the first node, but we will make a different case for it
+   		while(current.next!= null) {
    			previous = current;
    			current = current.next;
-   			if(current.name.equals(n)) {
-   				deadFirst = current;
+   			if(current.name.toLowerCase().equals(n.toLowerCase())) {
+   				//checks to see whether people are dead or not to see if it should set the initial node;
+   				if(deadFirst == null) {
+   					deadFirst = current;
+   				}
+   				//otherwise it adds current to the graveyard list
+   				else {
+   					current2  = deadFirst;
+   					while(current2.next != null) {
+   						current2 = current2.next;
+   					}
+   					current2.next = current;
+   				}
+   				//changes current to make sure killring skips it
+   				current.killer = previous.name;
    				previous.next = current.next;
-   				current.next = null;
    				return;
    			}
-   		
+   			
    		}
    		
-   		return;
 	}
 	
 	public boolean isGameOver() {
