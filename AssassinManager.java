@@ -1,3 +1,4 @@
+package Assassin;
 import java.util.*;
 import java.awt.List;
 
@@ -5,9 +6,10 @@ public class AssassinManager {
     // YOUR CODE GOES HERE
 
 	AssassinNode first;
-	AssassinNode deadFirst = null;
+	AssassinNode newDead;
 
 	public AssassinManager(ArrayList<String> names) {
+		newDead = null;
 		try {
 			first = new AssassinNode(names.get(0));
 			AssassinNode cur = first;
@@ -35,109 +37,122 @@ public class AssassinManager {
 		return print;
 	}
 	
-	public boolean killRingContains(String name) {
-		try {
-			AssassinNode current = first;
-			while(current.next != first) {
-				if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
-				current = current.next;
-			}
-			return false;
+	public String graveyard() {
+		if (newDead == null) {
+			return "";
 		}
-		catch(Exception e) {
-			return false;
+		String print = "";
+		AssassinNode cur = newDead ;
+		while(cur.next != null) {
+			print += cur.name + " was killed by " + cur.killer + "\n";
+			cur = cur.next;
 		}
+		print += cur.name + " was killed by " + cur.killer + "\n";
+		return print;
 	}
 	
-	public String graveyard() {
-		String s = "";
-		if(deadFirst == null) return "Nobody's died yet";
-		AssassinNode current = deadFirst;
-		while(current.next != null) {
-			if(killRingContains(current.killer)) {
-				s += current.name + " was killed by " + current.killer + "\n";
+	public boolean killRingContains(String name) {
+		String n = name.toLowerCase();
+		AssassinNode cur = first;
+		int count =0;
+		while(cur.next != first) {
+			if (cur.name.toLowerCase().equals(n)) {
+				return true;
 			}
-			current = current.next;
+			cur = cur.next;
 		}
-		return s;
+		if (cur.name.toLowerCase().equals(n)) {
+			return true;
+		}
+		return false;
 		
 	}
 	
 	public boolean graveyardContains(String name) {
-		try {
-			AssassinNode current = deadFirst;
-			while(current.next != null) {
-				if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
-				current = current.next;
+		if (newDead == null) {
+			return false;
+		}
+		String n = name.toLowerCase();
+		AssassinNode cur = newDead;
+		while(cur.next != null) {
+			if (cur.name.toLowerCase().equals(n)) {
+				return true;
 			}
-			if(current.name.toLowerCase().equals(name.toLowerCase())) return true;
-			return false;
+			cur = cur.next;
 		}
-		catch (Exception e) {
-			return false;
-		}
-	}
-	
-	
-	public void kill(String n) {
-		if(isGameOver()) throw new IllegalStateException();
-		if(!killRingContains(n)) throw new IllegalArgumentException();
-		AssassinNode current2;
-   		AssassinNode current = first;
-   		AssassinNode previous;
-   		while(current.next != first) {
-	   			current = current.next;
-	   		}
-   		AssassinNode last = current.next;
-   		//if first one is to be killed
-   		if(current.name.toLowerCase().equals(n.toLowerCase())) {
-   			deadFirst = current;
-   			current2 = deadFirst;
-   			current.killer = last.name;
-   			first = current.next;
-   			return;
-   		}
-   		//this skips the first node, but we will make a different case for it
-   		while(current.next!= null) {
-   			previous = current;
-   			current = current.next;
-   			if(current.name.toLowerCase().equals(n.toLowerCase())) {
-   				//checks to see whether people are dead or not to see if it should set the initial node;
-   				if(deadFirst == null) {
-   					deadFirst = current;
-   				}
-   				//otherwise it adds current to the graveyard list
-   				else {
-   					current2  = deadFirst;
-   					while(current2.next != null) {
-   						current2 = current2.next;
-   					}
-   					current2.next = current;
-   				}
-   				//changes current to make sure killring skips it
-   				current.killer = previous.name;
-   				previous.next = current.next;
-   				return;
-   			}
-   			
-   		}
-   		
-	}
-	
-	public boolean isGameOver() {
-		if (first.next == null) 
+		if (cur.name.toLowerCase().equals(n)) {
 			return true;
+		}
 		return false;
 	}
 	
 	public String winner() {
-		return first.name;
+		if (isGameOver()) 
+			return first.name;
+		return null;
 	}
 	
-	public static void main(String[] args) throws Exception{
-		ArrayList<String> bob = new ArrayList<String>(Arrays.asList("Don Knuth","bob","tim","Big John"));
+	public void kill(String name) {
+		if (isGameOver())  {
+			throw new IllegalStateException();
+		}
+		if (!killRingContains(name))  {
+			throw new IllegalArgumentException();
+		}	
+		String n = name.toLowerCase();
+		AssassinNode cur = first.next;
+		AssassinNode pre = first;
+		if (first.name.toLowerCase().equals(n)) {
+			AssassinNode next = new AssassinNode(cur.name,cur.next);
+			cur.next = newDead;
+			newDead = cur;
+			first = next;
+			cur.killer = pre.name;
+			return;
+		}
+		while(cur != first) {
+			if (cur.name.toLowerCase().equals(n)) {
+				
+				pre.next = cur.next;
+				cur.next = newDead;
+				newDead = cur;
+				cur.killer = pre.name;
+				return;
+			}
+			cur = cur.next;
+			pre = pre.next;
+		}
+		if (cur.name.toLowerCase().equals(n)) {
+			pre.next = cur.next;
+			cur.next = newDead;
+			newDead = cur;
+			cur.killer = pre.name;
+			return;
+		}
+		return;
+	}
+	
+	
+	public boolean isGameOver() {
+		return first.next == null;
+	}
+	
+	public static void main(String[] args) {
+		ArrayList<String> bob = new ArrayList<String>(Arrays.asList("Bill Gates","Tim Apple","President Obama","Toby Maguire","Michael B. Jordan", "Big Chungus","Sherlock Holmes","Alex Jones"));
 		AssassinManager tim = new AssassinManager(bob);
 		System.out.println(tim.killRing());
+		tim.kill("bill gates");
+		AssassinNode cur = tim.first;
+		for(int i=0;i<9;i++) {
+			System.out.println(cur.next);
+			cur = cur.next;
+			System.out.println(cur.name);
+			
+			
+		}
+
+		
+
 		
 	}
 }
