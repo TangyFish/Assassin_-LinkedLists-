@@ -1,4 +1,5 @@
 
+package Assassin;
 import java.io.*;
 import java.util.*;
 
@@ -28,7 +29,7 @@ public class AssassinMain {
 
     public static void main(String[] args) throws FileNotFoundException {
         // read names into a Set to eliminate duplicates
-        File inputFile = new File(INPUT_FILENAME);
+        File inputFile = new File("names.txt");
         if (!inputFile.canRead()) {
             System.out.println("Required input file not found; exiting.\n" + inputFile.getAbsolutePath());
             System.exit(1);

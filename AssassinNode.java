@@ -1,4 +1,5 @@
- public class AssassinNode 
+package Assassin;
+public class AssassinNode 
  {
      public final String name;  // this person's name
      public String killer;      // name of who killed this person (null if alive)

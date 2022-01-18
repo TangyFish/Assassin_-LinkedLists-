@@ -102,14 +102,6 @@ public class AssassinManager {
 		String n = name.toLowerCase();
 		AssassinNode cur = first.next;
 		AssassinNode pre = first;
-		if (first.name.toLowerCase().equals(n)) {
-			AssassinNode next = new AssassinNode(cur.name,cur.next);
-			cur.next = newDead;
-			newDead = cur;
-			first = next;
-			cur.killer = pre.name;
-			return;
-		}
 		while(cur != first) {
 			if (cur.name.toLowerCase().equals(n)) {
 				
@@ -123,10 +115,12 @@ public class AssassinManager {
 			pre = pre.next;
 		}
 		if (cur.name.toLowerCase().equals(n)) {
-			pre.next = cur.next;
-			cur.next = newDead;
-			newDead = cur;
-			cur.killer = pre.name;
+			first = first.next;
+			pre.next = first;
+			AssassinNode dead = new AssassinNode(cur.name,cur.next);
+			dead.next = newDead;
+			dead.killer = pre.name;
+			newDead = dead;
 			return;
 		}
 		return;
@@ -134,7 +128,7 @@ public class AssassinManager {
 	
 	
 	public boolean isGameOver() {
-		return first.next == null;
+		return first.next == null || first.next == first;
 	}
 	
 	public static void main(String[] args) {
@@ -142,17 +136,10 @@ public class AssassinManager {
 		AssassinManager tim = new AssassinManager(bob);
 		System.out.println(tim.killRing());
 		tim.kill("bill gates");
-		AssassinNode cur = tim.first;
-		for(int i=0;i<9;i++) {
-			System.out.println(cur.next);
-			cur = cur.next;
-			System.out.println(cur.name);
-			
-			
-		}
+		System.out.println(tim.killRing());
 
 		
-
+		
 		
 	}
 }
